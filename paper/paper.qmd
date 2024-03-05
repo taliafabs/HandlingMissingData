@@ -1,221 +1,71 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Missing Data"
+subtitle: "What is missing data and what can we do about it? "
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Talia Fabregas
+thanks: "Code and data are available at: https://github.com/taliafabs/HandlingMissingData.git"
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "Datasets can have missing variables. These variables can be missing completely at random missing at randon; or missing not at random. Missing data can never be made up and there is no one-size-fits-all way to handle missing data. Understanding what data is missing, why it is missing, and how to handle it is an important part of exploratory data analysis."
 format: pdf
 number-sections: true
 bibliography: references.bib
 ---
 
-```{r}
-#| include: false
-#| warning: false
-#| message: false
-
-library(tidyverse)
-library(palmerpenguins)
-```
-
-
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+Sometimes, a data set can have missing variables. In fact, missing data is basically inevitable regardless of how thourough the data acquisition process is @tswd. In surveys, an example of missing data is non-responses; non-response is actually an important thing to explore, especially in non-probability samples, because people often abstain from responding to a particular survey question for a reason, and there are often systemic differences between the people who responded and the people who abstained @tswd.
 
-The remainder of this paper is structured as follows. @sec-data....
+This paper will explore the three different categories of missing data: missing completely at random; missing at random; and missing not at random, as well as examples of each. Furthermore, this paper will discuss how, and when, missing data can be appropriately handled by dropping observations with missing data, imputing the mean, using multiple imputations, or considering additional explanatory variables.
 
-
-
-# Data {#sec-data}
-
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
-
-```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
-#| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
-#| message: false
-
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
-```
-
-Talk way more about it. 
+It is important to note that there is no "best" way to deal with missing data. This depends on our data set, category of missing data, and why certain data is missing. However, we can never make up missing data or compensate for it. Doing so would be highly unethical and would undermine the accuracy and credibility of our research.
 
 
+# Exploratory Data Analysis {#sec-eda}
+Exploratory data analysis (EDA) is a dynamic, customized process. There is no one-size-fits-all approach to EDA. However, when conducting EDA our main goal is to understand the distribution and properties of individual variables, relationships about variables, and what is not there @tswd. Thus, determining what data is missing, why it might be missing, and how we might be able to handle it appropriately is an important part of exploratory data analysis.
 
-# Model
+# Types of Missing Data {#sec-types}
+There are three main categories of missing data: Missing Completely at Random; Missing at Random; and Missing not at Random @tswd. 
 
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+## Missing Completely at Random
+When data is missing completely at random (MCAR), the reason why certain values, variables, or observations are missing or incomplete is entirely independent of any variable present within or outside of the data set @tswd. In a perfect world, missing values will be MCAR because this situation is the easiest one to deal with and. In this case, there is minimal concern about the effects that the removal observations with missing values might have on the summary statistics. In the context of a study aiming to learn about the effect of age, gender, income, and religion on the preferred presidential candidate of American adults, data might be missing completely at random if no age group, gender, income bracket, or religion is more or less likely to have answered the question about who their preferred presidential candidate is. 
 
 
-### Model justification
+## Missing at Random
+When data is missing at random (MAR), the reason why certain observations are missing is related to other variables within the data set @tswd. For example, if we are interested in learning about the effect of age, gender, income, and religion on one's preferred presidential candidate, and for some reason, females were less likely to respond to the survey question about who their preferred presidential candidate is, this data might be missing at random. If the increased likelihood of abstaining from answering the question is solely related to gender, and not another factor such as partisan affiliation, home state, or home county, then it might be just fine to continue as is as long as we take gender into account in the regression model or post-straify based on gender @tswd. However, the likelihood of this independence holding is pretty low, and in all likelihood, there is a relationship between whether or not an individual respondend to the survey and political support @mnar.
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-
-# Results
-
-Our results are summarized in @tbl-modelresults.
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
+## Missing not at Random
+When data is missing not at random (MNAR), certain observations are missing from the data set for reasons relating to other variables present in the data set in a way that is related to unobserved variables or the missing variable itself @tswd. If female respondents' decreased likelihood of answering the question about their preferred presidential candidate is in fact related to another variable outside the data set,such as partisan affiliation, home state, or home county, then the data would be missing not at random. Another possible example of MNAR in this same context is non-religious, young females and males also being less likely to answer who their preferred presidential candidate is. This could be due to the fact that left-leaning members of generation z are dissatisfied with President Joe Biden, or due to the fact that members of generation z just tend to be less interested in politics (interest in politics or perception of how important voting is could be an unobserved variable). 
 
 
+# How to Handle Missing Data {#sec-handle}
+There are multiple options for handling missing data. There is no "best" option or clear-cut way of doing this, so it is important to always examine how different ways of handling missing data will impact our results and to document exactly what was done and why it was done @tswd. It is important to understand which category the missing data falls under before determining how to handle it. 
+
+## Drop observations with missing data
+The base R mean() function automatically excludes observations with missing values in its calculations @citeR. If data is missing completely at random, then omitting the observations that are missing a certain value should not have any significant effect on the summary statistics @tswd. A way in which we can determine whether or not this is an option could be by randomly removing observations a few different times, and then comparing summary statistics. However, as previously noted, data is often not missing completely at random, so this approach could be risky and might not always be appropriate.
+
+## Impute the Mean of Observations Without Missing Data
+Another option is to impute the mean of observations without missing data.To do this, we create a second data set that does not have any of the observations with missing data, compute the mean of the respective column, and then impute the mean values into the original data set where the missing values are @tswd. 
+
+## Multiple Imputation
+Multiple imputation involves creating various potential data sets, doing inference, then combining them by averaging @gh2007. However, multiple imputation is not a very versatile approach. It is often not the way to go because it can create biased results and is done under the assumption that the missing values would have no effect on the summary statistics. Before doing imputation, it is important to simulate the removal of observations and implement various options in order to understand what the trade offs might be @tswd.
+
+## Additional Explanatory Variables
+When data is MNAR, dropping incomplete observations and data could be considered, but they will often amplify biases and threaten the accuracy of the data analysis @tswd. This is because when the reason why certain observations have certain missing values because of a variable outside of the data set, the best way to understand the missing values is to take the missing external variable into account. The addition of additional explanatory variables, such as party identification, ideological self-placement, and past vote might help us gain a better understanding of MNAR preferred presidential candidate response values @tmsv.
 
 
 # Discussion
 
-## First discussion point {#sec-first-point}
+# Missing values can be an important part of the story that a data set tells
 
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
+Handling missing data appropriately is a crucial step towards producing an accurate study, model, or research paper. In the same hypothetical survey example previously used, if gen z non-religious respondents were more likely to have a missing preferred presidential candidate value, then this could be an important part of the story that the data set tells. The absence of a value in the preferred candidate column can be due to a respondent's political preferences, partisan affiliation (or lack thereof), or issue evaluations. This would mean that the data is missing not at random, and simply removing observations with missing data would almost certainly produce biased, and therefore inaccurate results. Therefore, in this case, we would need to find a way to incorporate the missing data into our data analysis, model, research paper, and most importantly, the story that we are using the data set to tell. If we tell a story with data that has observations that are missing not at random, but fail to choose an appropriate way to address this and explain why the data is missing, then the story will be very incomplete.
 
 
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
-
+# Conclusion {#sec-conclusion}
+There's no such thing as a uniform, step-by-step approach for handling missing data. Each of the approaches outlined in this paper has its own pros and cons. Missing data is inevitable, and it is something that usually needs to be incorporated into the data analysis, rather than ignored. Understanding what data is missing, why it is missing, and if the reason why it is missing relates to the missing variable itself, another variable within the data set, or a variable outside the data set is a crucial first step towards finding an appropriate way to address it.  
 
 
 \newpage
 
 
 # References
-
-
